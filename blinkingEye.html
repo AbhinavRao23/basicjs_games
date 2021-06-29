@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Breathe</title>
+	<style>
+		canvas {
+		    padding-left: 0;
+		    padding-right: 0;
+		    margin-left: auto;
+		    margin-right: auto;
+		    display: block;
+		    width: 600px;
+		    height: 600px;
+		    object-fit: contain;
+		}
+	    body {
+	    	background-color:black;
+	    }
+	}</style>
+</head>
+<body>
+	<canvas id="gameCanvas" width ="800" height = "600"></canvas>
+	<script type="text/javascript">
+		const fps = 30; //lmao
+		var canvas=document.getElementById('gameCanvas');
+		var canvasContext=canvas.getContext('2d');
+		var irisSize = 20.0;
+		var pupilSize  = 8.0;
+		var irisColor = "rgb(0,0,255)";
+		var pupilColor = 'black'
+		var eye1X = 2*canvas.width/6;
+		var eye1Y = canvas.height/5;
+		var eye2X = 4*canvas.width/6;
+		var eye2Y = canvas.height/5;
+		var eyeSlitWidth = 100;
+		var eyeOpenHeight = 0;
+		var blinkSpeed = 1;	
+		
+		window.onload = function(){
+			setInterval(function(){
+				drawShit();
+				blink();
+			}, 1000/ fps);
+		}	
+		function drawShit(){
+			drawRect(0,0,canvas.width,canvas.height,'black');
+			drawEye(eye1X,eye1Y,irisSize,pupilSize,irisColor,pupilColor,eyeSlitWidth,eyeOpenHeight);
+			drawEye(eye2X,eye2Y,irisSize,pupilSize,irisColor,pupilColor,eyeSlitWidth,eyeOpenHeight);
+		}
+		function blink(){
+			eyeOpenHeight += blinkSpeed
+			if (eyeOpenHeight <= 0 | eyeOpenHeight >= 1.2*irisSize){
+				blinkSpeed =-blinkSpeed; 
+			}
+		}
+		function drawRect(cornerX,cornerY,width,height,drawColor){
+			canvasContext.fillStyle = drawColor;
+			canvasContext.fillRect(cornerX,cornerY,width, height)
+		}
+		function drawCircle(centerX,centerY,radius,drawColor){
+			canvasContext.fillStyle = drawColor;
+			canvasContext.beginPath();
+			canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+			canvasContext.fill();
+		}
+		function drawIris(centerX,centerY,iris,pupil,irisColor,pupilColor){
+			drawCircle(centerX,centerY,iris,irisColor); //iris
+			drawCircle(centerX,centerY,pupil,pupilColor); //iris
+			drawCircle(centerX+pupil, centerY-pupil,pupil/2,'white'); //shine
+		}
+		function drawEyeLids(centerX,centerY,slitWidth,height,drawColor){
+			canvasContext.fillStyle = drawColor;
+			canvasContext.beginPath();
+			canvasContext.moveTo(centerX-slitWidth/2,centerY-slitWidth/2);
+			canvasContext.lineTo(centerX-slitWidth/2,centerY);
+			canvasContext.bezierCurveTo(centerX-slitWidth/3,centerY-(4/3)*height,
+				centerX+slitWidth/3,centerY-(4/3)*height,
+				centerX+slitWidth/2,centerY);
+			canvasContext.lineTo(centerX+slitWidth/2,centerY-slitWidth/2);
+			canvasContext.fill();
+			canvasContext.moveTo(centerX-slitWidth/2,centerY+slitWidth/2);
+			canvasContext.lineTo(centerX-slitWidth/2,centerY);
+			canvasContext.bezierCurveTo(centerX-slitWidth/3,centerY+(4/3)*height,
+				centerX+slitWidth/3,centerY+(4/3)*height,
+				centerX+slitWidth/2,centerY);
+			canvasContext.lineTo(centerX+slitWidth/2,centerY+slitWidth/2);
+			canvasContext.fill();
+		}
+		function drawEye(centerX,centerY,iris,pupil,irisColor,pupilColor,slitWidth,height){
+			drawRect(centerX-slitWidth/2+1,centerY-height,slitWidth-2,height*2,'white');
+			drawIris(centerX,centerY,iris,pupil,irisColor,pupilColor);
+			drawEyeLids(centerX,centerY,slitWidth,height,'black');
+		}
+	</script>
+</body>
+</html>
