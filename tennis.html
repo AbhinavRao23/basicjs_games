@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Abhinav's Game</title>
+</head>
+<body>
+	<canvas id = "gameCanvas" width = "800" height = '600'></canvas>
+	<script type="text/javascript">
+		const fps = 30;
+		const ballSize = 5;
+		const paddleWidth = 10;
+		const paddleHeight = 50;
+		const borderPad = 5;
+		const gamePace = 0.1;
+		const opponentSkill = 1;
+		var canvas;
+		var canvasContext;
+		canvas = document.getElementById('gameCanvas');
+		canvasContext = canvas.getContext('2d');
+		var ballX = canvas.width/2;
+		var balldX = 0;
+		var ballY = canvas.height/2;
+		var balldY = 0;
+		var paddle1Y = canvas.height/2 - paddleHeight/2;
+		var paddle2Y = canvas.height/2 - paddleHeight/2;
+		var paddle2dY = 3;
+		var player1Score = 0;
+		var player2Score = 0;
+		var message = "click to play";
+		var gameStop = true;
+
+
+
+		window.onload = function() {
+			setInterval(function(){
+				drawShit();
+				moveShit();
+			}, 1000/ fps);
+
+			canvas.addEventListener('mousemove',
+				function(evt){
+					var mousePos = mousePosition(evt);
+					paddle1Y = mousePos.y;
+				})
+
+			canvas.addEventListener('click',
+				function(evt){
+					if (balldX == 0 & balldY == 0){
+						message = '';
+						balldX = 10;
+						balldY = 3;
+						gameStop = false;
+					}
+				})
+
+		}
+		
+		function moveShit(){
+			ballX += balldX;
+			ballY += balldY;
+			computerOpponent();
+			if (ballX >= canvas.width-ballSize-paddleWidth-borderPad){
+				if (ballY <= paddle2Y + paddleHeight & ballY >= paddle2Y){
+					balldX = -balldX;
+					balldY += balldY/(Math.abs(balldY))*gamePace*Math.abs(ballY-(paddle2Y+paddleHeight/2));
+				}
+				else {
+					paddle2dY += opponentSkill;
+					player1Score++;
+					ballReset()
+				}
+			} 
+			if (ballX <= paddleWidth+ballSize+borderPad){
+				if (ballY <= paddle1Y + paddleHeight & ballY >= paddle1Y){
+					balldX = -balldX;
+					balldY += balldY/(Math.	abs(balldY))*gamePace*Math.abs(ballY-(paddle1Y+paddleHeight/2));
+				}
+				else{
+					player2Score++;
+					ballReset()
+				}
+			}	
+			if (ballY >= canvas.height-ballSize | ballY <= ballSize){
+				balldY = -balldY;
+			}
+		}	
+
+		function drawShit(){
+			drawRect(0,0,canvas.width,canvas.height,'black');
+			drawRect(borderPad,paddle1Y,paddleWidth,paddleHeight,'white');//paddle 1
+			drawCircle(ballX,ballY,ballSize,'white');
+			drawRect(canvas.width-paddleWidth-borderPad,paddle2Y,paddleWidth,paddleHeight,'white');//paddle 2
+			drawNet(gameStop);
+			canvasContext.textAlign = 'center';
+			canvasContext.fillText(message, canvas.width/2, canvas.height/3);
+			canvasContext.fillText(player1Score, canvas.width/4, canvas.height/3);
+			canvasContext.fillText(player2Score, 3*canvas.width/4, canvas.height/3);
+		}
+
+		function drawRect(cornerX,cornerY,width,height,drawColor){
+			canvasContext.fillStyle = drawColor;
+			canvasContext.fillRect(cornerX,cornerY,width, height)
+		}
+
+		function drawCircle(centerX,centerY,radius,drawColor){
+			canvasContext.fillStyle = drawColor;
+			canvasContext.beginPath();
+			canvasContext.arc(centerX, centerY, radius, 0, Math.PI*2, true);
+			canvasContext.fill(); // all three lines written since JS doesnt have fill function for arc/circle
+		}
+
+		function mousePosition(evt){
+			var rect = canvas.getBoundingClientRect();
+			var root = document.documentElement;
+			var mouseX = evt.clientX-rect.letf-root.scrollLeft;
+			var mouseY=evt.clientY-rect.top-root.scrollTop;
+			return {x:mouseX,
+					y:mouseY};
+		}
+
+		function ballReset(){
+			message = 'click to play';
+			gameStop = true;
+			ballX = canvas.width/2;
+			ballY = canvas.height/2;
+			balldX = 0;
+			balldY = 0;
+			paddle2Y = canvas.height/2 - paddleHeight/2;
+		}
+
+		function computerOpponent(){
+			if (ballY > paddle2Y + paddleHeight){
+				paddle2Y += paddle2dY;
+			}
+			else if (ballY < paddle2Y){
+				paddle2Y -= paddle2dY;
+			}
+		}
+
+		function drawNet(gameStop){
+			var i = borderPad;
+			if(gameStop == true){
+				i += canvas.height/3;
+			}
+			var netWidth = 2;
+			var netHeight = 10;
+			for (i;i<canvas.height-borderPad;i+=2*netHeight){
+				canvasContext.fillStyle = 'white';
+				canvasContext.fillRect(canvas.width/2-netWidth/2,i,netWidth,netHeight);
+			}
+		}
+	</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
