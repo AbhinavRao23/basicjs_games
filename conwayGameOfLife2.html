@@ -12,7 +12,7 @@
 		const fps = 10;
 		const canvas = document.getElementById('gameCanvas');
 		const canvasContext = canvas.getContext('2d');
-		var cellSize = 10;
+		var cellSize = 5;
 		let mouseX;
 		let mouseY;
 		let cellNextColor = '#33C3F0';
@@ -85,7 +85,7 @@
 			for(let i=0;i<rows;i++){
 				frameArr[i] = [];
 				for(let j=0;j<cols;j++){
-					frameArr[i][j]= (Math.random())*random;
+					frameArr[i][j]= (Math.random())*0.4*random;
 				}
 			}
 			return frameArr;
@@ -97,7 +97,9 @@
 			for (let i=0; i<rows; i++){
 				for (let j=0; j<cols; j++){
 						let value = Math.round(renderFrame[i][j]*255)
-						let cellColor = 'rgb('+value+','+value+','+value+')';
+						let red = value;
+						let blue = 255-value;
+						let cellColor = 'rgb('+red+','+0+','+blue+')';
 						drawRect(j*cellSize,i*cellSize,cellSize,cellSize,cellColor);
 				}
 			}
@@ -109,8 +111,8 @@
 			for (let i=0; i<currentFrame.length; i++){
 				for (let j=0; j<currentFrame[0].length; j++){
 
-					if (currentFrame[i][j]>=0.5 & !(neighbors[i][j]>1.5 & neighbors[i][j]<3.5)){
-						nextFrame[i][j] = currentFrame[i][j]-0.5
+					if (currentFrame[i][j]>=0.5 & !(neighbors[i][j]>2 & neighbors[i][j]<=3)){
+						nextFrame[i][j] = currentFrame[i][j]-0.5;
 					}
 
 					if (currentFrame[i][j]<0.5 & Math.round(neighbors[i][j])==3){
