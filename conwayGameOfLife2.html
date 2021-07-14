@@ -6,17 +6,18 @@
 <body>
 	<canvas id = "gameCanvas" width = "400" height = "400"></canvas>
 	<button id = "draw" type="button" onclick="drawToggle()">draw</button>
-	<button id = "reset" type="reset">original</button>
 	<button id = "random" type="button"  onclick="randomRestart()">surprise me</button>
 	<script type="text/javascript">
+		
 		const fps = 10;
 		const canvas = document.getElementById('gameCanvas');
 		const canvasContext = canvas.getContext('2d');
-		var cellSize = 100;
+		var cellSize = 10;
 		let mouseX;
 		let mouseY;
+		let cellNextColor = '#33C3F0';
 		var frame = makeFrame(canvas.width, canvas.height, cellSize);
-		var start=false;
+		var start=true;
 		var sketch=false;
 		var end=false;
 
@@ -33,7 +34,7 @@
 			canvas.addEventListener('click',
 				function(evt){
 					if (!sketch){
-						start=!start;
+						start=!start;	
 					}
 					else{
 						let i=Math.floor(mouseY/cellSize);
@@ -46,21 +47,14 @@
 				if (end){
 					clearInterval(game);
 				}
-				drawShit(canvas,'white',frame,cellSize);
-				changeShit();
+				var nextFrame = makeNextFrame(frame);
+				drawRect(0,0,canvas.width,canvas.height,'white');
+				drawFrame(frame,cellSize);
+				if (start){
+				frame = nextFrame;
+				// drawFrame(nextFrame,cellSize,cellNextColor);
+				}
 			}, 1000/ fps);	
-		}
-
-		function drawShit(canvas,canvasColor,frame,cellSize){
-			drawRect(0,0,canvas.width,canvas.height,canvasColor);
-			drawFrame(frame,cellSize);
-		}
-
-		function changeShit(){
-			if (start){
-				frame = makeNextFrame(frame);
-				console.log(frame);
-			}
 		}
 
 		function drawRect(cornerX,cornerY,width,height,drawColor){
@@ -71,7 +65,7 @@
 		function drawCursorCell(mouseX,mouseY){
 			cellX=cellSize*Math.floor(mouseX/cellSize);
 			cellY=cellSize*Math.floor(mouseY/cellSize);
-			drawRect(cellX,cellY,cellSize,cellSize,'black');
+			drawRect(cellX,cellY,cellSize,cellSize,cellColor);
 		}
 
 		function mousePosition(evt){
@@ -102,11 +96,9 @@
 			let cols = renderFrame[0].length;
 			for (let i=0; i<rows; i++){
 				for (let j=0; j<cols; j++){
-					if (renderFrame[i][j] == 1){
-						let cellColor = 'rgb(0, ' + Math.floor(255*(renderFrame[i][j])) + ', ' +
-                         0+ ')';
+						let value = Math.round(renderFrame[i][j]*255)
+						let cellColor = 'rgb('+value+','+value+','+value+')';
 						drawRect(j*cellSize,i*cellSize,cellSize,cellSize,cellColor);
-					}
 				}
 			}
 		}
@@ -116,11 +108,13 @@
 			var neighbors = makeNeighborFrame(currentFrame);
 			for (let i=0; i<currentFrame.length; i++){
 				for (let j=0; j<currentFrame[0].length; j++){
-					if (currentFrame[i][j]>0.5 & !(neighbors[i][j] >=2 & neighbors[i][j]<=3)){
-						nextFrame[i][j]*=0.5;
+
+					if (currentFrame[i][j]>=0.5 & !(neighbors[i][j]>1.5 & neighbors[i][j]<3.5)){
+						nextFrame[i][j] = currentFrame[i][j]-0.5
 					}
-					if (currentFrame[i][j]<=0.5 & Math.round(neighbors[i][j])==3){
-						nextFrame[i][j]*=2;
+
+					if (currentFrame[i][j]<0.5 & Math.round(neighbors[i][j])==3){
+							nextFrame[i][j]=currentFrame[i][j]+0.5;		
 					}
 				}
 			}
@@ -135,7 +129,9 @@
 
 		function drawToggle(){
 			var drawButton = document.getElementById("draw");
+
 			if (drawButton.innerText=="draw"){
+				console.log('draw pressed');
 				drawButton.innerText="start";
 				start=false;
 				sketch=true;
